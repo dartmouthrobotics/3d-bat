@@ -1966,7 +1966,7 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, length, height, 
     let imageScalingFactor;
     let imagePanelHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-        imageScalingFactor = 900 / imagePanelHeight;//5
+        imageScalingFactor = 480 / imagePanelHeight;//5 MJ
         xPos = xPos + labelTool.translationVectorLidarToCamFront[1];//lat
         yPos = yPos + labelTool.translationVectorLidarToCamFront[0];//long
         zPos = zPos + labelTool.translationVectorLidarToCamFront[2];//vertical
@@ -1991,8 +1991,10 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, length, height, 
         let point3D = [point.x, point.y, point.z, 1];
         let projectionMatrix;
         let point2D;
+        let print = console.log
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             projectionMatrix = labelTool.camChannels[idx].projectionMatrixNuScenes;
+            // print(projectionMatrix);
             point2D = matrixProduct3x4(projectionMatrix, point3D);
         }
 
@@ -2087,7 +2089,7 @@ function projectPoints(points3D, channelIdx) {
     let scalingFactor;
     let imagePanelHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-        scalingFactor = 900 / imagePanelHeight;
+        scalingFactor = 480 / imagePanelHeight; // MJ
         projectionMatrix = labelTool.camChannels[channelIdx].projectionMatrixNuScenes;
     }
 

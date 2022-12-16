@@ -91,8 +91,10 @@ function initialize(camChannel) {
         let width;
         let height;
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-            width = 320;
-            height = 180;
+            // width = 320;
+            // height = 180;
+            width = 640;
+            height = 480;
         }
         changeCanvasSize(width, height, camChannel);
         labelTool.addResizeEventForImage();

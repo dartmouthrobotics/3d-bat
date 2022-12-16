@@ -7,8 +7,8 @@ let labelTool = {
     currentDataset: "",
     currentDatasetIdx: 0,
     sequence: "",
-    pointCloudOnlyAnnotation: true,
-    numFramesNuScenes: 50,
+    pointCloudOnlyAnnotation: false,
+    numFramesNuScenes: 100,
     numFramesProvidentia: 50,
     frameScreenshots: [],
     numFrames: 0,
@@ -26,7 +26,7 @@ let labelTool = {
     cameraImagesLoaded: false,
     timeDelayScreenshot: 2000,
     timeDelayPlay: 100,
-    imageSizes: {},
+    imageSizes: {width: 640, height:480},
     originalAnnotations: [],   // For checking modified or not
     skipFrameCount: 1,
     targetClass: "",
@@ -44,6 +44,9 @@ let labelTool = {
         projectionMatrixNuScenes: [[110.4698206116641, 1464.0011761439307, 26.41455707029287, -916.4598489300432],
             [-337.97741211920834, 265.1972065752412, -1252.6308707181809, -729.4327569362895],
             [-0.8143136873894475, 0.5803598650034878, 0.008697449242951868, -0.7728492390141875]],
+        // projectionMatrixNuScenes: [[457.449092, -691.476602, -12.0109203, -219.7019577],
+        //     [171.095009, 15.8855588, -802.809951, -92.3622284],
+        //     [9.80732740e-01, 1.77848530e-01, -8.08281300e-02, -3.52749600e-02]],
         transformationMatrixEgoToCamNuScenes: [[8.09585281e-01, -5.86688274e-01, 1.91974424e-02, 1.56400000e+00],
             [2.33267982e-02, -5.23589075e-04, -9.99727756e-01, 4.72000000e-01],
             [5.86538603e-01, 8.09812692e-01, 1.32616689e-02, 1.53500000e+00],
@@ -56,19 +59,30 @@ let labelTool = {
     }, {
         channel: 'CAM_FRONT',
         positionCameraNuScenes: [1.671, -0.026, 1.536],
-        fieldOfView: 70,
+        fieldOfView: 90,
         rotationYaw: 0, // 0 degree
-        projectionMatrixNuScenes: [[1260.3593003446563, 790.4433526756009, 15.627522424805397, -636.3274027306582],
-            [7.834243891370816, 448.30558439994263, -1259.159501002805, -740.8962245421313],
-            [-0.003064512389859362, 0.9999620062762187, 0.008160561736325754, -0.7757948007768039]],
+        // projectionMatrixNuScenes: [[1260.3593003446563, 790.4433526756009, 15.627522424805397, -636.3274027306582],
+        //     [7.834243891370816, 448.30558439994263, -1259.159501002805, -740.8962245421313],
+        //     [-0.003064512389859362, 0.9999620062762187, 0.008160561736325754, -0.7757948007768039]], // original
+        projectionMatrixNuScenes: [[  4.57449092e+02,  -6.91476602e+02,  -1.20109203e+01,  -7.52287226e+01],
+            [  1.71095009e+02,   1.58855588e+01,  -8.02809951e+02,  -1.32399494e+02],
+        [  9.80732740e-01,  1.77848530e-01,  -8.08281300e-02,  -2.05274960e-01]],
         transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.671],
-            [0.01358668, -0.0056486, -0.99989174, -0.026],
-            [0.99989659, -0.00463591, 0.01361294, 1.536],
-            [0, 0, 0, 1,]],
-        transformationMatrixCamToLidar: [[0.997215031568529, -0.00936548076240627, 0.0739896518701493, -0.0340200000000000],
-            [-0.0734336035104482, 0.0499789540314553, 0.996046991878090, -0.607137000000000],
-            [-0.0130263843505084, -0.998706359208757, 0.0491520232212485, -0.104301000000000],
-            [0, 0, 0, 1]],
+                            [0.01358668, -0.0056486, -0.99989174, -0.026],
+                            [0.99989659, -0.00463591, 0.01361294, 1.536],
+                            [0, 0, 0, 1,]],
+        // transformationMatrixCamToLidar: [[0.997215031568529, -0.00936548076240627, 0.0739896518701493, -0.0340200000000000],
+        //     [-0.0734336035104482, 0.0499789540314553, 0.996046991878090, -0.607137000000000],
+        //     [-0.0130263843505084, -0.998706359208757, 0.0491520232212485, -0.104301000000000],
+        //     [0, 0, 0, 1]], // original
+        // transformationMatrixCamToLidar: [[0.17990687, -0.98350243,  0.01888079, -0.01073315], // Catabot (L to C)
+        //     [-0.07613674, -0.03305854, -0.99654921, -0.10687324],
+        //     [0.98073274,  0.17784853, -0.08082813, -0.03527496],
+        //     [0, 0, 0, 1]],
+        transformationMatrixCamToLidar: [[4.89641661e-12, 4.89630558e-12, 1.00000000e+00, 2.86081000e-02], // Catabot (C to L)
+            [-1.00000000e+00, 2.39738083e-23, 4.89630558e-12, -5.60151000e-03],
+            [2.22044629e-16,  -1.00000000e+00,   4.89641661e-12,  -2.01150000e-01],
+            [0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   1.00000000e+00]],
         rotation: 0
     }, {
         channel: 'CAM_FRONT_RIGHT',
@@ -144,9 +158,10 @@ let labelTool = {
     // position of the lidar sensor in ego vehicle space
     positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
     positionLidar: [0.0, 0.0, 6.9],//(long, lat, vert)
-    translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
+    // translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
+    translationVectorLidarToCamFront: [-0.01073315 , -0.10687324, -0.20527496], // MJ
     showOriginalNuScenesLabels: false,
-    imageAspectRatioNuScenes: 1.777777778,
+    imageAspectRatioNuScenes: 1.3333, // 1.7778 original
     showFieldOfView: false,
     selectedMesh: undefined,
     folderEndPosition: undefined,
@@ -695,9 +710,11 @@ let labelTool = {
         labelTool.imageSizes = {
             "NuScenes": {
                 minWidthNormal: Math.floor(window.innerWidth / 6),
-                minHeightNormal: Math.floor(window.innerWidth / (6 * 1.77778)),
+                // minHeightNormal: Math.floor(window.innerWidth / (6 * 1.7778)),
+                minHeightNormal: Math.floor(window.innerWidth / (6 * 1.3333333)), // MJ
                 maxWidthNormal: 640,
-                maxHeightNormal: 360
+                // maxHeightNormal: 360
+                maxHeightNormal: 480 // MJ
             }
         };
     }, initPanes: function () {
@@ -806,7 +823,8 @@ let labelTool = {
                     let channel = labelTool.camChannels[channelIdx].channel;
                     let id = "image-" + channel.toLowerCase().replace(/_/g, '-');
                     let minWidth = window.innerWidth / 6;
-                    let minHeight = minWidth * 1.7778;
+                    // let minHeight = minWidth * 1.7778;
+                    let minHeight = minWidth * 1.3333; // MJ
                     imageContainer.append("<div id='" + id + "'></div>");
                     $("#" + id).css("width", minWidth);
                     $("#" + id).css("height", minHeight);
@@ -839,7 +857,8 @@ let labelTool = {
                     let channel = labelTool.camChannels[channelIdx].channel;
                     let id = "image-" + channel.toLowerCase().replace(/_/g, '-');
                     let minWidth = window.innerWidth / 6;
-                    let minHeight = minWidth / 1.7778;
+                    // let minHeight = minWidth / 1.7778;
+                    let minHeight = minWidth / 1.3333; // MJ
                     $("#" + id).css("width", minWidth);
                     $("#" + id).css("height", minHeight);
                 }
@@ -973,9 +992,13 @@ let labelTool = {
             $("#layout_layout_panel_top .w2ui-panel-content").empty();
 
             if (this.currentDataset === this.datasets.NuScenes) {
-                w2ui['layout'].panels[0].minSize = Math.ceil(window.innerWidth) / (6 * 1.7778);
-                w2ui['layout'].panels[0].maxSize = 360;
-                w2ui['layout'].panels[0].size = Math.ceil(window.innerWidth) / (6 * 1.7778);
+                w2ui['layout'].panels[0].minSize = Math.ceil(window.innerWidth) / (6 * 1.333333);
+                w2ui['layout'].panels[0].maxSize = 480;
+                w2ui['layout'].panels[0].size = Math.ceil(window.innerWidth) / (6 * 1.333333);
+
+                // w2ui['layout'].panels[0].minSize = Math.ceil(window.innerWidth) / (6 * 1.7778);
+                // w2ui['layout'].panels[0].maxSize = 360;
+                // w2ui['layout'].panels[0].size = Math.ceil(window.innerWidth) / (6 * 1.7778);
             }
             w2ui['layout'].resize();
         }
