@@ -94,8 +94,9 @@ let useTransformControls;
 let dragControls = false;
 let keyboardNavigation = false;
 let canvas3D;
-let pointSizeCurrent = 0.2;
+let pointSizeCurrent = 0.05;
 let pointSizeMax = 3;
+
 let defaultBoxHeight = 1.468628;
 let gridSize = 200;
 
@@ -648,13 +649,17 @@ function addClassTooltip(fileIndex, className, trackId, color, bbox) {
     sprite.name = "sprite-" + className.charAt(0) + trackId;
 
     // add tooltip only to DOM if fileIndex is equal to current file index
+    // MJ not going there
     if (fileIndex === labelTool.currentFileIndex) {
+    // if (fileIndex - labelTool.initFileIndex === labelTool.currentFileIndex) {
         $("body").append(classTooltipElement);
         scene.add(sprite);
     }
+
     labelTool.spriteArray[fileIndex].push(sprite);
     // console.log("file index", fileIndex, labelTool.initFileIndex)
     // labelTool.spriteArray[fileIndex - labelTool.initFileIndex].push(sprite); // MJ
+
 }
 
 function get3DLabel(parameters) {
@@ -663,6 +668,7 @@ function get3DLabel(parameters) {
     let color;
     if (parameters.fromFile === true) {
         // color = classesBoundingBox[parameters.class].color;
+
         color = classesBoundingBox.getCurrentAnnotationClassObject().color;
 
     } else {
@@ -708,12 +714,18 @@ function get3DLabel(parameters) {
         scene.add(cubeMesh);
         addBoundingBoxGui(bbox, undefined);
     }
+    // if (parameters.fileIndex -  labelTool.initFileIndex === labelTool.currentFileIndex) {
+    // scene.add(cubeMesh); // MJ
+    // addBoundingBoxGui(bbox, undefined); // MJ
+    // }
     // class tooltip
     // console.log("param file index", parameters.fileIndex)
     addClassTooltip(parameters.fileIndex, parameters.class, parameters.trackId, color, bbox);
     labelTool.cubeArray[parameters.fileIndex].push(cubeMesh);
+
     // addClassTooltip(parameters.fileIndex, parameters.class, parameters.trackId, color, bbox);
     // labelTool.cubeArray[parameters.fileIndex - labelTool.initFileIndex].push(cubeMesh);
+
     return bbox;
 }
 

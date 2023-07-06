@@ -17,15 +17,17 @@ let labelTool = {
     frameScreenshots: [],
     numFrames: 0,
     dataTypes: [],
+
     playSequence: false,
     currentFileIndex: 0, // this kept being used 0-9
     showCameraPosition: false,
     drawEgoVehicle: true,
+
     previousFileIndex: 0,
     fileNames: [],
     takeCanvasScreenshot: false,
     timeDelay: 1000,
-    pointCloudLoaded: false,
+    pointCloudLoaded: false, // false
     imageCanvasInitialized: false,
     cameraImagesLoaded: false,
     timeDelayScreenshot: 2000,
@@ -322,8 +324,11 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
             function () {
             }
     }, loadImageData: function () {
+        console.log("3. image loading current file index", labelTool.currentFileIndex)
+        console.log("3-1. image loading current file index original", this.currentFileIndex)
         if (labelTool.cameraImagesLoaded === false) {
-            for (let i = 0; i < this.numFrames; i++) {
+            // console.log("numFrames:", this.numFrames) // MJ numFramesNuscene value
+            for (let i = 0; i < this.numFrames; i++) { // 0 ~ 9
                 for (let camChannelObj in this.camChannels) {
                     if (this.camChannels.hasOwnProperty(camChannelObj)) {
                         let camChannelObject = this.camChannels[camChannelObj];
@@ -334,10 +339,13 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
             }
             labelTool.cameraImagesLoaded = true;
         }
+        // imageArrayAll = imageArrayAll.reverse()
         // show 6 camera images of current frame
+        console.log("4. testing image array flip", imageArrayAll)
         for (let i = 0; i < 6; i++) {
             imageArrayAll[labelTool.currentFileIndex][i].toBack();
         }
+        // MJ
         // draw 2D bb for all objects
         // note that last element is the 'insertIndex' -> iterate until length-1
         if (annotationObjects.contents !== undefined && annotationObjects.contents.length > 0) {
@@ -345,6 +353,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 let annotationObj = annotationObjects.contents[this.currentFileIndex][j];
                 let params = setObjectParameters(annotationObj);
                 // draw2DProjections(params); // MJ
+
                 // set new params
                 for (let i = 0; i < annotationObj["channels"].length; i++) {
                     annotationObjects.contents[this.currentFileIndex][j]["channels"][i]["lines"] = params["channels"][i]["lines"];
@@ -378,7 +387,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
             labelTool.pointCloudLoaded = true;
         } else {
             pointCloudScan = pointCloudScanMap[labelTool.currentFileIndex];
-            pointCloudScan.material.size = pointSizeCurrent;
+            // pointCloudScan.material.size = pointSizeCurrent; // MJ
             scene.add(pointCloudScan);
         }
 
@@ -500,6 +509,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 // if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
                 //     classesBoundingBox[annotation.category].maxTrackId = params.id;
                 // }
+
                 // Nuscenes labels are stored in global frame in the database
                 // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
                 params.x = parseFloat(annotation.box3d.location.x);
@@ -714,19 +724,27 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         $("#image-cam-back-right").css("height", panelHeight);
         $("#image-cam-back").css("height", panelHeight);
         $("#image-cam-back-left").css("height", panelHeight);
-
+        
+        console.log("1. new file index:", newFileIndex) // MJ before loading image
 
         for (let i = 0; i < labelTool.camChannels.length; i++) {
             let id = "#image-" + labelTool.camChannels[i].channel.toLowerCase().replace(/_/g, '-');
             // bring all svgs into background
             let allSvg = $(id + " svg");
+            console.log("2. all length", allSvg.length) // total number of frames loaded
             for (let j = 0; j < allSvg.length; j++) {
                 allSvg[j].style.zIndex = 0;
             }
-            allSvg[labelTool.numFrames - newFileIndex - 1].style.zIndex = 2;
+            
+            // allSvg[labelTool.numFrames - newFileIndex - 1].style.zIndex = 2; // MJ
+            allSvg[newFileIndex].style.zIndex = 2;
             let imgWidth = window.innerWidth / 6;
-            allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth;
-            allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioNuScenes;
+            // allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth; // MJ
+            // allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioNuScenes; // MJ
+            allSvg[newFileIndex].style.width = imgWidth;
+            allSvg[newFileIndex].style.height = imgWidth / labelTool.imageAspectRatioNuScenes;
+        
+        console.log("2 done")
         }
     }, setImageSize: function () {
         // calculate the image width given the window width
@@ -898,7 +916,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 for (let i = 0; i < this.fileNames.length; i++) {
                     fileName = this.fileNames[i] + ".json";
                     request({
-                        url: '/label/annotations/',
+                        url: '/label/annotations/', // MJ regardless of this, it loads annotations/ folder
                         type: 'GET',
                         dataType: 'json',
                         data: {
@@ -912,8 +930,11 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                     });
                 }
             } else {
+                // MJ: ************** loading happens here **************
                 for (let i = 0; i < labelTool.fileNames.length; i++) {
                     fileName = labelTool.fileNames[i];
+                    // console.log("file name array for annotation", labelTool.fileNames)
+                    console.log("file name for annotation testing: ", fileName)
                     request({
                         url: '/label/annotations/',
                         type: 'GET',
@@ -930,7 +951,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 }
             }
         } else if (labelTool.currentDataset === labelTool.datasets.providentia) {
-            // TODO: load all available file names
+            // MJ regardless of this, it loads annotations/ folder
             for (let i = 0; i < labelTool.fileNames.length; i++) {
                 fileName = labelTool.fileNames[i];
                 request({
@@ -957,7 +978,10 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         }
 
         // base label tool
-        this.currentFileIndex = 0;
+        
+        // this.currentFileIndex = 0; 
+        this.currentFileIndex = labelTool.currentFileIndex; // MJ
+        // console.log("test for current file index", labelTool.currentFileIndex)
         this.fileNames = [];
         this.originalAnnotations = [];
         this.targetClass = this.classes[0];
@@ -1068,19 +1092,30 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         }, labelTool.timeDelay);
     }, start() {
         this.initTimer();
+        console.log("here1")
         this.setFileNames();
+        console.log("here2")
         this.initClasses();
+        console.log("here3")
         this.initClassPicker();
+        console.log("here4")
         this.initFrameSelector();
+        console.log("here5")
         if (labelTool.pointCloudOnlyAnnotation === false) {
+            console.log("here6")
             this.initCameraWindows();
+            console.log("here7")
             this.loadImageData();
         }
+        console.log("here8")
         this.initPointCloudWindow();
+        console.log("here9")
         this.loadPointCloudData();
+        // MJ
         if (this.loadAnnotationFlag == true) {
             this.loadAnnotations();
         }
+
     },
     loadConfig() {
         labelTool.dataStructure = loadConfigFile(labelTool.configFileName);
@@ -1099,20 +1134,24 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
     },
     setFileNames() {
         let fileNameArray = [];
+        // set final frames to load
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             labelTool.numFrames = labelTool.numFramesNuScenes;
             for (let i = 0; i < labelTool.numFrames; i++) {
                 fileNameArray.push(pad(i + labelTool.initFileIndex, 6)) // MJ
+
             }
 
         } else if (labelTool.currentDataset === labelTool.datasets.providentia) {
             labelTool.numFrames = labelTool.numFramesProvidentia;
             for (let i = 0; i < labelTool.numFrames; i++) {
+
                 fileNameArray.push(pad(i + labelTool.initFileIndex, 6)) // MJ
 
             }
         }
         labelTool.fileNames = fileNameArray;
+        console.log("filename array", fileNameArray)
     },
 
     previousFrame: function () {
@@ -1228,6 +1267,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         }
     },
     changeFrame: function (newFileIndex) {
+        console.log("change frame", newFileIndex)
         if (newFileIndex === labelTool.numFrames && labelTool.playSequence === true) {
             // start from first frame
             labelTool.playSequence = false;
@@ -1306,6 +1346,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         } else {
             // next frame has already 3D annotations which will be added to the scene
             for (let i = 0; i < this.cubeArray[newFileIndex].length; i++) {
+                console.log("here enter", annotationObjects.contents)
                 let mesh = this.cubeArray[newFileIndex][i];
                 scene.add(mesh);
                 let sprite = this.spriteArray[newFileIndex][i];
@@ -1809,8 +1850,10 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal, selecte
     if (selected === true) {
         color = "#ff0000";
     } else {
+
         color = "#ff0000"; // MJ
         // color = classesBoundingBox[className].color;
+
     }
 
     // bottom four lines
