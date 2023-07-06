@@ -126,10 +126,18 @@ labelTool.onInitialize("CAM_BACK_LEFT", function () {
 });
 
 function loadCameraImages(camChannel, fileIndex) {
-    let imgPath = "input/" + labelTool.currentDataset + "/" + labelTool.sequence + "/images/" + camChannel + "/" + labelTool.fileNames[fileIndex] + ".jpg";
+    // let imgPath = "input/" + labelTool.currentDataset + "/" + labelTool.sequence + "/images/" + camChannel + "/" + labelTool.fileNames[fileIndex] + ".jpg";
+    let imgPath = "input/" + labelTool.currentDataset + "/" + labelTool.sequence + "/images/" + camChannel + "/" + labelTool.fileNames[labelTool.numFrames-fileIndex - 1] + ".jpg";
     let channelIdx = getChannelIndexByName(camChannel);
     let paper = paperArrayAll[fileIndex][channelIdx];
     imageArray[channelIdx] = paper.image(imgPath, 0, 0, "100%", "100%");
+
+    // if (camChannel == "CAM_FRONT") {
+    //     console.log("image loaded for: ", imgPath)
+    //     console.log("file index", fileIndex)
+    //     console.log("channel", channelIdx)
+    //     console.log("image loaded test for imageArray: ", imageArray)
+    // }
 }
 
 function changeClass(bbIndex, newClass) {

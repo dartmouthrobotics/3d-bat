@@ -94,7 +94,7 @@ let useTransformControls;
 let dragControls = false;
 let keyboardNavigation = false;
 let canvas3D;
-let pointSizeCurrent = 0.05;
+let pointSizeCurrent = 0.2; 
 let pointSizeMax = 1;
 let defaultBoxHeight = 1.468628;
 let gridSize = 200;
@@ -648,11 +648,16 @@ function addClassTooltip(fileIndex, className, trackId, color, bbox) {
     sprite.name = "sprite-" + className.charAt(0) + trackId;
 
     // add tooltip only to DOM if fileIndex is equal to current file index
+    // MJ not going there
     if (fileIndex === labelTool.currentFileIndex) {
+    // if (fileIndex - labelTool.initFileIndex === labelTool.currentFileIndex) {
         $("body").append(classTooltipElement);
         scene.add(sprite);
     }
-    labelTool.spriteArray[fileIndex].push(sprite);
+    // console.log("please test", fileIndex, labelTool.currentFileIndex)
+
+    // labelTool.spriteArray[fileIndex].push(sprite);
+    labelTool.spriteArray[labelTool.currentFileIndex].push(sprite); // MJ
 }
 
 function get3DLabel(parameters) {
@@ -660,7 +665,11 @@ function get3DLabel(parameters) {
     let cubeGeometry = new THREE.BoxBufferGeometry(1.0, 1.0, 1.0);//width, length, height
     let color;
     if (parameters.fromFile === true) {
-        color = classesBoundingBox[parameters.class].color;
+        // MJ 2023.07.03 loading error as there was not color property in the box
+        // color = classesBoundingBox[parameters.class].color; // original MJ
+        // color = classesBoundingBox.getColorByClass(parameters.class).color // MJ
+        color = classesBoundingBox.getCurrentAnnotationClassObject().color;
+
     } else {
         color = classesBoundingBox.getCurrentAnnotationClassObject().color;
     }
@@ -704,9 +713,17 @@ function get3DLabel(parameters) {
         scene.add(cubeMesh);
         addBoundingBoxGui(bbox, undefined);
     }
+    // if (parameters.fileIndex -  labelTool.initFileIndex === labelTool.currentFileIndex) {
+    // scene.add(cubeMesh); // MJ
+    // addBoundingBoxGui(bbox, undefined); // MJ
+    // }
     // class tooltip
     addClassTooltip(parameters.fileIndex, parameters.class, parameters.trackId, color, bbox);
     labelTool.cubeArray[parameters.fileIndex].push(cubeMesh);
+    
+    // MJ
+    // addClassTooltip(parameters.fileIndex -  labelTool.initFileIndex, parameters.class, parameters.trackId, color, bbox);
+    // labelTool.cubeArray[parameters.fileIndex -  labelTool.initFileIndex].push(cubeMesh);
     return bbox;
 }
 
