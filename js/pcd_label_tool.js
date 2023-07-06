@@ -94,8 +94,8 @@ let useTransformControls;
 let dragControls = false;
 let keyboardNavigation = false;
 let canvas3D;
-let pointSizeCurrent = 0.05;
-let pointSizeMax = 1;
+let pointSizeCurrent = 0.2;
+let pointSizeMax = 3;
 let defaultBoxHeight = 1.468628;
 let gridSize = 200;
 
@@ -653,6 +653,8 @@ function addClassTooltip(fileIndex, className, trackId, color, bbox) {
         scene.add(sprite);
     }
     labelTool.spriteArray[fileIndex].push(sprite);
+    // console.log("file index", fileIndex, labelTool.initFileIndex)
+    // labelTool.spriteArray[fileIndex - labelTool.initFileIndex].push(sprite); // MJ
 }
 
 function get3DLabel(parameters) {
@@ -660,7 +662,9 @@ function get3DLabel(parameters) {
     let cubeGeometry = new THREE.BoxBufferGeometry(1.0, 1.0, 1.0);//width, length, height
     let color;
     if (parameters.fromFile === true) {
-        color = classesBoundingBox[parameters.class].color;
+        // color = classesBoundingBox[parameters.class].color;
+        color = classesBoundingBox.getCurrentAnnotationClassObject().color;
+
     } else {
         color = classesBoundingBox.getCurrentAnnotationClassObject().color;
     }
@@ -705,8 +709,11 @@ function get3DLabel(parameters) {
         addBoundingBoxGui(bbox, undefined);
     }
     // class tooltip
+    // console.log("param file index", parameters.fileIndex)
     addClassTooltip(parameters.fileIndex, parameters.class, parameters.trackId, color, bbox);
     labelTool.cubeArray[parameters.fileIndex].push(cubeMesh);
+    // addClassTooltip(parameters.fileIndex, parameters.class, parameters.trackId, color, bbox);
+    // labelTool.cubeArray[parameters.fileIndex - labelTool.initFileIndex].push(cubeMesh);
     return bbox;
 }
 

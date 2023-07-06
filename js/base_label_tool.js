@@ -1,5 +1,10 @@
 let labelTool = {
     configFileName: 'config.json',
+
+    initFileIndex: 0, // IMPORTANT! Your file index start!
+    loadAnnotationFlag: true, // true if you want to load, false if you don't
+    numFramesNuScenes: 10, // (recommend to use as it is) how many frames you will load; default: 0
+
     dataStructure: undefined,
     datasets: {},
     datasetArray: [],
@@ -8,15 +13,14 @@ let labelTool = {
     currentDatasetIdx: 0,
     sequence: "",
     pointCloudOnlyAnnotation: false,
-    numFramesNuScenes: 100,
     numFramesProvidentia: 50,
     frameScreenshots: [],
     numFrames: 0,
     dataTypes: [],
     playSequence: false,
-    currentFileIndex: 0,
+    currentFileIndex: 0, // this kept being used 0-9
     showCameraPosition: false,
-    drawEgoVehicle: false,
+    drawEgoVehicle: true,
     previousFileIndex: 0,
     fileNames: [],
     takeCanvasScreenshot: false,
@@ -340,7 +344,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
             for (let j = 0; j < annotationObjects.contents[this.currentFileIndex].length - 1; j++) {
                 let annotationObj = annotationObjects.contents[this.currentFileIndex][j];
                 let params = setObjectParameters(annotationObj);
-                draw2DProjections(params);
+                // draw2DProjections(params); // MJ
                 // set new params
                 for (let i = 0; i < annotationObj["channels"].length; i++) {
                     annotationObjects.contents[this.currentFileIndex][j]["channels"][i]["lines"] = params["channels"][i]["lines"];
@@ -394,15 +398,20 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
 
         // draw ego vehicle
         if (labelTool.drawEgoVehicle === true) {
-            let lexusTexture = new THREE.TextureLoader().load('assets/models/lexus/lexus.jpg');
+            // let lexusTexture = new THREE.TextureLoader().load('assets/models/lexus/lexus.jpg'); // original
+            let lexusTexture = new THREE.TextureLoader().load('assets/models/boat/boat.jpg'); // MJ
             let lexusMaterial = new THREE.MeshBasicMaterial({map: lexusTexture});
             let objLoader = new THREE.OBJLoader();
-            objLoader.load('assets/models/lexus/lexus_hs.obj', function (object) {
+            // objLoader.load('assets/models/lexus/lexus_hs.obj', function (object) {
+                objLoader.load('assets/models/boat/boat.obj', function (object) { // MJ
                 let lexusGeometry = object.children[0].geometry;
                 let lexusMesh = new THREE.Mesh(lexusGeometry, lexusMaterial);
 
                 lexusMesh.scale.set(0.065, 0.065, 0.065);
-                lexusMesh.rotation.set(0, 0, -Math.PI / 2);
+                // lexusMesh.rotation.set(0, 0, -Math.PI / 2); // original repo rotation
+
+                lexusMesh.scale.set(0.03, 0.03, 0.03);
+                lexusMesh.rotation.set(Math.PI / 2, 0, 0); // MJ
                 lexusMesh.position.set(0, 0, -labelTool.positionLidarNuscenes[2]);
 
                 scene.add(lexusMesh)
@@ -457,11 +466,13 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                     params.original.length = tmpLength;
                     params.original.height = tmpHeight;
                 }
-                params.fileIndex = fileIndex;
+                console.log("file index in base", fileIndex)
+                // params.fileIndex = fileIndex;
+                params.fileIndex = fileIndex - this.initFileIndex; // MJ
                 // project 3D position into 2D camera image
-                if (labelTool.pointCloudOnlyAnnotation === false) {
-                    draw2DProjections(params);
-                }
+                // if (labelTool.pointCloudOnlyAnnotation === false) {
+                //     draw2DProjections(params); // MJ
+                // }
                 // add new entry to contents array
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
@@ -486,9 +497,9 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
                 params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
                 params.trackId = annotation.id;
-                if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
-                    classesBoundingBox[annotation.category].maxTrackId = params.id;
-                }
+                // if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
+                //     classesBoundingBox[annotation.category].maxTrackId = params.id;
+                // }
                 // Nuscenes labels are stored in global frame in the database
                 // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
                 params.x = parseFloat(annotation.box3d.location.x);
@@ -514,7 +525,11 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                     params.original.length = tmpLength;
                     params.original.height = tmpHeight;
                 }
-                params.fileIndex = Number(frameObject.index);
+                // console.log("frame object index", Number(frameObject.index))
+                // MJ this can handle everything to read proper file index as global
+                // beforehand, I tried to modify locally which made it really hard
+                params.fileIndex = Number(frameObject.index) - this.initFileIndex; 
+                // params.fileIndex = Number(frameObject.index);
                 // add new entry to contents array
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
@@ -536,13 +551,14 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
             classesBoundingBox[labelTool.classes[i]].nextTrackId = classesBoundingBox[labelTool.classes[i]].maxTrackId + 1;
         }
         // project 3D positions of current frame into 2D camera images
-        if (labelTool.pointCloudOnlyAnnotation === false) {
-            if (annotationObjects.contents[this.currentFileIndex].length > 0) {
-                for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
-                    draw2DProjections(annotationObjects.contents[this.currentFileIndex][i]);
-                }
-            }
-        }
+        // MJ
+        // if (labelTool.pointCloudOnlyAnnotation === false) {
+        //     if (annotationObjects.contents[this.currentFileIndex].length > 0) {
+        //         for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
+        //             draw2DProjections(annotationObjects.contents[this.currentFileIndex][i]);
+        //         }
+        //     }
+        // }
     },
     loadFrameAnnotationsProvidentiaJSON: function (frameObject) {
         // convert 2D bounding box to integer values
@@ -796,7 +812,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
                     let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][i];
                     let params = setObjectParameters(annotationObj);
-                    draw2DProjections(params);
+                    // draw2DProjections(params); // MJ
                 }
                 // update position of controls
                 $("#bounding-box-3d-menu").css("top", headerHeight + newImagePanelHeight);
@@ -1062,7 +1078,9 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         }
         this.initPointCloudWindow();
         this.loadPointCloudData();
-        this.loadAnnotations();
+        if (this.loadAnnotationFlag == true) {
+            this.loadAnnotations();
+        }
     },
     loadConfig() {
         labelTool.dataStructure = loadConfigFile(labelTool.configFileName);
@@ -1084,13 +1102,14 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             labelTool.numFrames = labelTool.numFramesNuScenes;
             for (let i = 0; i < labelTool.numFrames; i++) {
-                fileNameArray.push(pad(i, 6))
+                fileNameArray.push(pad(i + labelTool.initFileIndex, 6)) // MJ
             }
 
         } else if (labelTool.currentDataset === labelTool.datasets.providentia) {
             labelTool.numFrames = labelTool.numFramesProvidentia;
             for (let i = 0; i < labelTool.numFrames; i++) {
-                fileNameArray.push(pad(i, 6))
+                fileNameArray.push(pad(i + labelTool.initFileIndex, 6)) // MJ
+
             }
         }
         labelTool.fileNames = fileNameArray;
@@ -1104,7 +1123,9 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         }
     },
 
+    // main function to move onto the next frame
     nextFrame: function () {
+        console.log("working on switching to the next frame ...");
         let start = new Date().getTime();
         if (this.currentFileIndex < (this.fileNames.length - 1 - this.skipFrameCount)) {
             this.changeFrame(this.currentFileIndex + this.skipFrameCount);
@@ -1113,7 +1134,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         }
         let end = new Date().getTime();
         let time = end - start;
-        console.log(time);
+        console.log("time to load next frame", time / 1000);
     },
 
     jumpFrame: function () {
@@ -1788,7 +1809,8 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal, selecte
     if (selected === true) {
         color = "#ff0000";
     } else {
-        color = classesBoundingBox[className].color;
+        color = "#ff0000"; // MJ
+        // color = classesBoundingBox[className].color;
     }
 
     // bottom four lines
