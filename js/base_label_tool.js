@@ -1,9 +1,11 @@
 let labelTool = {
     configFileName: 'config.json',
-
+    
+    // /////////////////////////////////////
     initFileIndex: 0, // IMPORTANT! Your file index start!
     loadAnnotationFlag: true, // true if you want to load, false if you don't
     numFramesNuScenes: 10, // (recommend to use as it is) how many frames you will load; default: 0
+    // /////////////////////////////////////
 
     dataStructure: undefined,
     datasets: {},
