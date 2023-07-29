@@ -25,6 +25,7 @@ let labelTool = {
     showCameraPosition: false,
     drawEgoVehicle: true,
 
+    globalFileIndexforLoding: 0,
     previousFileIndex: 0,
     fileNames: [],
     takeCanvasScreenshot: false,
@@ -343,7 +344,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         }
         // imageArrayAll = imageArrayAll.reverse()
         // show 6 camera images of current frame
-        console.log("4. testing image array flip", imageArrayAll)
+        // console.log("4. testing image array flip", imageArrayAll)
         for (let i = 0; i < 6; i++) {
             imageArrayAll[labelTool.currentFileIndex][i].toBack();
         }
@@ -479,12 +480,14 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 }
                 console.log("file index in base", fileIndex)
                 // params.fileIndex = fileIndex;
-                params.fileIndex = fileIndex - this.initFileIndex; // MJ
+                params.fileIndex = fileIndex + this.initFileIndex; // MJ
+
                 // project 3D position into 2D camera image
                 // if (labelTool.pointCloudOnlyAnnotation === false) {
                 //     draw2DProjections(params); // MJ
                 // }
                 // add new entry to contents array
+
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
                 classesBoundingBox.getCurrentAnnotationClassObject().nextTrackId++;
@@ -492,7 +495,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         }
     },
     // Set values to this.annotationObjects from allAnnotations
-    loadAnnotationsNuScenesJSON: function (frameObject) {
+    loadAnnotationsNuScenesJSON: function (frameObject, i) {
         // Remove old bounding boxes of current frame.
         let frameAnnotations = frameObject.labels;
         // Add new bounding boxes
@@ -537,14 +540,22 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                     params.original.length = tmpLength;
                     params.original.height = tmpHeight;
                 }
-                // console.log("frame object index", Number(frameObject.index))
+                console.log("frame object index", Number(frameObject.index))
                 // MJ this can handle everything to read proper file index as global
                 // beforehand, I tried to modify locally which made it really hard
-                params.fileIndex = Number(frameObject.index) - this.initFileIndex; 
-                // params.fileIndex = Number(frameObject.index);
+ 
+                params.fileIndex = this.globalFileIndexforLoding + i;
+                // params.fileIndex = this.currentFileIndex + this.initFileIndex; // 2023.07.29 originally I gave file index (actual), now all for 0-9
+                // params.fileIndex = Number(frameObject.index); // sometime it changes abruptly not 0 to 9 always
+
+                console.log("here reached for annotation reading", params.fileIndex)
                 // add new entry to contents array
+                ////////////////////////////////////////////////////
+                // MJ 2023.07.29 error for loading annotation
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
+                console.log("here2 reached for annotation reading", params.fileIndex)
+                ////////////////////////////////////////////////////
                 if (isNaN(classesBoundingBox.getCurrentAnnotationClassObject().nextTrackId)) {
                     classesBoundingBox.getCurrentAnnotationClassObject().nextTrackId = 0;
                 }
@@ -562,6 +573,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         for (let i = 0; i < labelTool.classes.length; i++) {
             classesBoundingBox[labelTool.classes[i]].nextTrackId = classesBoundingBox[labelTool.classes[i]].maxTrackId + 1;
         }
+        
         // project 3D positions of current frame into 2D camera images
         // MJ
         // if (labelTool.pointCloudOnlyAnnotation === false) {
@@ -936,7 +948,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 for (let i = 0; i < labelTool.fileNames.length; i++) {
                     fileName = labelTool.fileNames[i];
                     // console.log("file name array for annotation", labelTool.fileNames)
-                    console.log("file name for annotation testing: ", fileName)
+                    console.log("file name for annotation load testing: ", fileName)
                     request({
                         url: '/label/annotations/',
                         type: 'GET',
@@ -945,7 +957,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                             file_name: fileName
                         },
                         success: function (res) {
-                            this.loadAnnotationsNuScenesJSON(res);
+                            this.loadAnnotationsNuScenesJSON(res, i);
                         }.bind(this),
                         error: function (res) {
                         }.bind(this)
@@ -1093,20 +1105,21 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
             $("#time-elapsed").text(timeString);
         }, labelTool.timeDelay);
     }, start() {
+        // MJ
         this.initTimer();
-        console.log("here1")
+        // console.log("here1")
         this.setFileNames();
-        console.log("here2")
+        // console.log("here2")
         this.initClasses();
-        console.log("here3")
+        // console.log("here3")
         this.initClassPicker();
-        console.log("here4")
+        // console.log("here4")
         this.initFrameSelector();
-        console.log("here5")
+        // console.log("here5")
         if (labelTool.pointCloudOnlyAnnotation === false) {
-            console.log("here6")
+            // console.log("here6")
             this.initCameraWindows();
-            console.log("here7")
+            // console.log("here7")
             this.loadImageData();
         }
         console.log("here8")
@@ -1115,7 +1128,9 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         this.loadPointCloudData();
         // MJ
         if (this.loadAnnotationFlag == true) {
+            console.log("here10")
             this.loadAnnotations();
+            console.log("here11")
         }
 
     },

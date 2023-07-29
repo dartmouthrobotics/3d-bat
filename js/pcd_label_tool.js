@@ -94,7 +94,7 @@ let useTransformControls;
 let dragControls = false;
 let keyboardNavigation = false;
 let canvas3D;
-let pointSizeCurrent = 0.05;
+let pointSizeCurrent = 0.05; // 1.2
 let pointSizeMax = 3;
 
 let defaultBoxHeight = 1.468628;
@@ -650,14 +650,15 @@ function addClassTooltip(fileIndex, className, trackId, color, bbox) {
 
     // add tooltip only to DOM if fileIndex is equal to current file index
     // MJ not going there
-    if (fileIndex === labelTool.currentFileIndex) {
+    if (fileIndex === labelTool.currentFileIndex + labelTool.initFileIndex) {
     // if (fileIndex - labelTool.initFileIndex === labelTool.currentFileIndex) {
         $("body").append(classTooltipElement);
         scene.add(sprite);
     }
-
+    // currentFileindex: 0, 1, 2, ...
+    console.log("file index splite", fileIndex, labelTool.currentFileIndex + labelTool.initFileIndex)
+    console.log("splite array", labelTool.spriteArray)
     labelTool.spriteArray[fileIndex].push(sprite);
-    // console.log("file index", fileIndex, labelTool.initFileIndex)
     // labelTool.spriteArray[fileIndex - labelTool.initFileIndex].push(sprite); // MJ
 
 }
@@ -719,12 +720,17 @@ function get3DLabel(parameters) {
     // addBoundingBoxGui(bbox, undefined); // MJ
     // }
     // class tooltip
-    // console.log("param file index", parameters.fileIndex)
-    addClassTooltip(parameters.fileIndex, parameters.class, parameters.trackId, color, bbox);
-    labelTool.cubeArray[parameters.fileIndex].push(cubeMesh);
-
+    console.log("param file index in get3DLabel", parameters.fileIndex) // 0, 1, 2,...
     // addClassTooltip(parameters.fileIndex, parameters.class, parameters.trackId, color, bbox);
-    // labelTool.cubeArray[parameters.fileIndex - labelTool.initFileIndex].push(cubeMesh);
+    // labelTool.cubeArray[parameters.fileIndex].push(cubeMesh);
+
+    // console.log("error spot 1")
+    addClassTooltip(parameters.fileIndex, parameters.class, parameters.trackId, color, bbox); // MJ
+    // console.log("error spot 2")
+    // console.log("error spot 2",)
+    labelTool.cubeArray[parameters.fileIndex].push(cubeMesh); // MJ
+    // labelTool.cubeArray[parameters.fileIndex - labelTool.initFileIndex].push(cubeMesh); // MJ
+    // console.log("error spot 3")
 
     return bbox;
 }

@@ -52,7 +52,10 @@ let annotationObjects = {
         return this.contents[index][channel];
     },
     set: function (insertIndex, params) {
+        // console.log("annotation error debug 1")
         let obj = get3DLabel(params);
+        // console.log("annotation error debug 2")
+        // console.log("params file index in annotation error", params.fileIndex)
         if (this.contents[params.fileIndex][insertIndex] === undefined) {
             this.contents[params.fileIndex].push(obj);
         } else {
