@@ -4,7 +4,7 @@ let labelTool = {
     // /////////////////////////////////////
     initFileIndex: 0, // IMPORTANT! Your file index start!
     loadAnnotationFlag: true, // true if you want to load, false if you don't
-    numFramesNuScenes: 10, // (recommend to use as it is) how many frames you will load; default: 0
+    numFramesNuScenes: 50, // (recommend to use as it is) how many frames you will load; default: 0
     // /////////////////////////////////////
 
     dataStructure: undefined,
@@ -25,7 +25,7 @@ let labelTool = {
     showCameraPosition: false,
     drawEgoVehicle: true,
 
-    globalFileIndexforLoding: 0,
+    globalFileIndexforLoding: 0, // MJ
     previousFileIndex: 0,
     fileNames: [],
     takeCanvasScreenshot: false,
@@ -1122,15 +1122,15 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
             // console.log("here7")
             this.loadImageData();
         }
-        console.log("here8")
+        // console.log("here8")
         this.initPointCloudWindow();
-        console.log("here9")
+        // console.log("here9")
         this.loadPointCloudData();
         // MJ
         if (this.loadAnnotationFlag == true) {
-            console.log("here10")
+            // console.log("here10")
             this.loadAnnotations();
-            console.log("here11")
+            // console.log("here11")
         }
 
     },

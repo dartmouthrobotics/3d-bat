@@ -94,8 +94,8 @@ let useTransformControls;
 let dragControls = false;
 let keyboardNavigation = false;
 let canvas3D;
-let pointSizeCurrent = 0.05; // 1.2
-let pointSizeMax = 3;
+let pointSizeCurrent = 2.5 // 1.2
+let pointSizeMax = 4;
 
 let defaultBoxHeight = 1.468628;
 let gridSize = 200;
@@ -1563,8 +1563,8 @@ function setOrbitControls() {
     scene.remove(pointerLockObject);
 
 
-    currentCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-    currentCamera.position.set(0, 0, 5);
+    currentCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 3000);
+    currentCamera.position.set(-15, -30, 30);
     currentCamera.up.set(0, 0, 1);
 
     currentOrbitControls = new THREE.OrbitControls(currentCamera, renderer.domElement);
