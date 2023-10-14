@@ -5,18 +5,18 @@
 # 3D Bounding Box Annotation Tool (3D BAT)
 ![3D Bounding Box Annotation Tool](https://github.com/walzimmer/bat-3d/blob/master/assets/img/3d_boxes.png)
 
-# Installation
-1. Clone repository: `git clone https://github.com/walzimmer/bat-3d.git`
+# Installation - Dartmouth Robotics
+1. Clone repository: `git clone https://github.com/dartmouthrobotics/3d-bat.git`
 2. Install npm 
    + Linux: `sudo apt-get install npm`
    + Windows: https://nodejs.org/dist/v10.15.0/node-v10.15.0-x86.msi
-3. Install PHP Storm or WebStorm (IDE with integrated web server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
-4. [OPTIONAL] Install WhatPulse to measure the number of clicks and key strokes while labeling: https://whatpulse.org/
-5. Open folder `bat-3d` in PHP Storm.
-5. Move into directory: `cd bat-3d`.
-6. Download sample scenes extracted from the NuScenes dataset from [here](https://github.com/walzimmer/bat-3d/releases/download/v0.1.0/NuScenes.zip) and extract the content into the `bat-3d/input/` folder.
-7. Install required packages: `npm install`
-8. Open `index.html` with chromium-browser (Linux) or Chrome (Windows) within the IDE. Right click on index.html -> Open in Browser -> Chrome/Chromium
+3. Install `VS-code`
+4. In `VS-code`, install `Live Server` extension
+5. Open folder `3d-bat` in `VS-code`.
+5. Move into directory: `cd 3d-bat` and generate `3d-bat/input/NuScenes`
+6. Download sequnece for your label `3d-bat/input/NuScenes/` folder. For example, `input/NuScenes/mascoma-20221012-5940/`
+7. Install required packages: do command `npm install` in `3d-bat` folder.
+8. Open `index.html` in `VS-code` and click `onlive` button at the bottom right corner. You will see the ```port:5500``` running with browser pop-up. 
 
 # Overview
 ![Overview](https://github.com/walzimmer/bat-3d/blob/master/assets/img/overview.png)

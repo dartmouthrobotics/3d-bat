@@ -191,6 +191,8 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
     views: {perspective: "perspective", orthographic: "orthographic"},
     classes: [],
     classColors: [],
+    // classes: ["ship", "buoy", "others"],
+    // classColors: ["#3ABB9D","#EBCF36","#FF604B"],
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
      **************************************************/
@@ -511,9 +513,9 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
                 params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
                 params.trackId = annotation.id;
-                // if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
-                //     classesBoundingBox[annotation.category].maxTrackId = params.id;
-                // }
+                if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
+                    classesBoundingBox[annotation.category].maxTrackId = params.trackId;
+                } // 2023.10.14 MJ fix annotation label change 
 
                 // Nuscenes labels are stored in global frame in the database
                 // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
@@ -561,7 +563,8 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 }
                 classesBoundingBox[classesBoundingBox.getCurrentClass()].nextTrackId++;
             }
-        }//end for loop frame annotations
+        }
+        //end for loop frame annotations
         // reset track ids for next frame if nuscenes dataset and showLabels=true
         if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
             for (let i = 0; i < labelTool.classes.length; i++) {
@@ -992,7 +995,6 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
         }
 
         // base label tool
-        
         // this.currentFileIndex = 0; 
         this.currentFileIndex = labelTool.currentFileIndex; // MJ
         // console.log("test for current file index", labelTool.currentFileIndex)
