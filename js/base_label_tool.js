@@ -498,10 +498,12 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
     },
     // Set values to this.annotationObjects from allAnnotations
     loadAnnotationsNuScenesJSON: function (frameObject, i) {
+        // Args: frameObject: json file loaded dict
         // Remove old bounding boxes of current frame.
         let frameAnnotations = frameObject.labels;
+        
         // Add new bounding boxes
-        for (let annotationIdx in frameAnnotations) {
+        for (let annotationIdx in frameAnnotations) { // each labelled object in a json file
             if (frameAnnotations.hasOwnProperty(annotationIdx)) {
                 let annotation = frameAnnotations[annotationIdx];
                 let params = getDefaultObject();
@@ -513,6 +515,11 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
                 params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
                 params.trackId = annotation.id;
+                
+                // console.log("annotation.id", annotation.id);
+                // console.log("annotation class", annotation.category);
+                // console.log("max track id", classesBoundingBox[annotation.category].maxTrackId);
+
                 if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
                     classesBoundingBox[annotation.category].maxTrackId = params.trackId;
                 } // 2023.10.14 MJ fix annotation label change 
@@ -542,7 +549,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                     params.original.length = tmpLength;
                     params.original.height = tmpHeight;
                 }
-                console.log("frame object index", Number(frameObject.index))
+                console.log("frame number (object loaded as dict) index", Number(frameObject.index))
                 // MJ this can handle everything to read proper file index as global
                 // beforehand, I tried to modify locally which made it really hard
  
@@ -550,13 +557,13 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 // params.fileIndex = this.currentFileIndex + this.initFileIndex; // 2023.07.29 originally I gave file index (actual), now all for 0-9
                 // params.fileIndex = Number(frameObject.index); // sometime it changes abruptly not 0 to 9 always
 
-                console.log("here reached for annotation reading", params.fileIndex)
+                console.log("before reached for annotation reading file index:", params.fileIndex)
                 // add new entry to contents array
                 ////////////////////////////////////////////////////
                 // MJ 2023.07.29 error for loading annotation
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
-                console.log("here2 reached for annotation reading", params.fileIndex)
+                console.log("after reached for annotation reading file index:", params.fileIndex)
                 ////////////////////////////////////////////////////
                 if (isNaN(classesBoundingBox.getCurrentAnnotationClassObject().nextTrackId)) {
                     classesBoundingBox.getCurrentAnnotationClassObject().nextTrackId = 0;
@@ -748,7 +755,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
             let id = "#image-" + labelTool.camChannels[i].channel.toLowerCase().replace(/_/g, '-');
             // bring all svgs into background
             let allSvg = $(id + " svg");
-            console.log("2. all length", allSvg.length) // total number of frames loaded
+            // console.log("2. all length", allSvg.length) // MJ total number of frames loaded
             for (let j = 0; j < allSvg.length; j++) {
                 allSvg[j].style.zIndex = 0;
             }
@@ -761,7 +768,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
             allSvg[newFileIndex].style.width = imgWidth;
             allSvg[newFileIndex].style.height = imgWidth / labelTool.imageAspectRatioNuScenes;
         
-        console.log("2 done")
+        console.log("2. done image loading")
         }
     }, setImageSize: function () {
         // calculate the image width given the window width
@@ -960,7 +967,7 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                             file_name: fileName
                         },
                         success: function (res) {
-                            this.loadAnnotationsNuScenesJSON(res, i);
+                            this.loadAnnotationsNuScenesJSON(res, i); // main loading
                         }.bind(this),
                         error: function (res) {
                         }.bind(this)
