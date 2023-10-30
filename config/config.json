@@ -3,7 +3,7 @@
     {
       "name": "NuScenes",
       "sequences": [
-        "busan-20221102-360"
+        "mascoma-20221007-1560"
       ],
       "classes": [
         "ship",

@@ -668,9 +668,8 @@ function get3DLabel(parameters) {
     let cubeGeometry = new THREE.BoxBufferGeometry(1.0, 1.0, 1.0);//width, length, height
     let color;
     if (parameters.fromFile === true) {
-        // color = classesBoundingBox[parameters.class].color;
-
-        color = classesBoundingBox.getCurrentAnnotationClassObject().color;
+        color = classesBoundingBox[parameters.class].color; // MJ color match with annotated box
+        // color = classesBoundingBox.getCurrentAnnotationClassObject().color;
 
     } else {
         color = classesBoundingBox.getCurrentAnnotationClassObject().color;
