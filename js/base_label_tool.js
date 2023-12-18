@@ -2,9 +2,9 @@ let labelTool = {
     configFileName: 'config.json',
     
     // /////////////////////////////////////
-    initFileIndex: 147, // IMPORTANT! Your file index start!
+    initFileIndex: 239, // IMPORTANT! Your file index start!
     loadAnnotationFlag: true, // true if you want to load, false if you don't
-    numFramesNuScenes: 50, // (recommend to use as it is) how many frames you will load; default: 0
+    numFramesNuScenes: 1, // (recommend to use as it is) how many frames you will load; default: 0
     // /////////////////////////////////////
 
     dataStructure: undefined,
@@ -535,7 +535,9 @@ transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.67
                 let tmpWidth = parseFloat(annotation.box3d.dimension.width);
                 let tmpLength = parseFloat(annotation.box3d.dimension.length);
                 let tmpHeight = parseFloat(annotation.box3d.dimension.height);
-                if (tmpWidth > 0.3 && tmpLength > 0.3 && tmpHeight > 0.3) {
+                // if (tmpWidth > 0.3 && tmpLength > 0.3 && tmpHeight > 0.3) {
+                // 2023.12.17 box size input from original human bounding box
+                if (tmpWidth !== 0.0 && tmpLength !== 0.0 && tmpHeight !== 0.0) {
                     tmpWidth = Math.max(tmpWidth, 0.0001);
                     tmpLength = Math.max(tmpLength, 0.0001);
                     tmpHeight = Math.max(tmpHeight, 0.0001);
